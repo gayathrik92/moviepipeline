@@ -42,12 +42,12 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-      - name: Build Frontend Application
-        run: cd frontend && npm run build
       - name: Fix permissions for react-scripts
         run: |
           cd frontend
-          chmod +x node_modules/.bin/react-scripts
+          chmod +x node_modules/.bin/react-scripts		
+      - name: Build Frontend Application
+        run: cd frontend && npm run build
       - name: Build Docker image
         run: |
           cd frontend
