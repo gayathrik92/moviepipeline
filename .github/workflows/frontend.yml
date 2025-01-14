@@ -11,25 +11,21 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-	
+
     steps:
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
+      - name: Set up Node.js (if applicable)
         uses: actions/setup-node@v2
         with:
-          node-version: '18'  # Adjust according to your project’s required Node version
+          node-version: '18'  # Update with the correct Node version if using Node.js
 
-      - name: Install dependencies
-        run: |
-          cd frontend
-          npm install
+      - name: Install Dependencies
+        run: cd frontend && npm ci
 
-      - name: Run ESLint (TypeScript + React)
-        run: |
-          cd frontend
-          npm run lint  # Assuming 'lint' is the npm script that runs ESLint, configured for TypeScript and React
+      - name: Run Unit Tests
+        run: cd frontend && npm lint
   test:
     runs-on: ubuntu-latest
 
