@@ -61,8 +61,12 @@ jobs:
       - name: Build Docker image
         run: |
           cd frontend
-          docker build -t ${{ secrets.REGISTRY_USERNAME }}:${{ github.sha}} -f Dockerfile .
+          IMAGE_TAG="${{ secrets.REGISTRY_USERNAME }}:${{ github.sha }}"
+          IMAGE_TAG_LOWERCASE=$(echo $IMAGE_TAG | tr '[:upper:]' '[:lower		  
+          docker build -t $IMAGE_TAG_LOWERCASE -f Dockerfile .
       - name: Push Docker image to AWS ECR
         run: |
-          docker push ${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}
-          docker push ${{ secrets.AWS_ECR_REPOSITORY }}:latest		
+          IMAGE_TAG="${{ secrets.REGISTRY_USERNAME }}:${{ github.sha }}"
+          IMAGE_TAG_LOWERCASE=$(echo $IMAGE_TAG | tr '[:upper:]' '[:lower:]')
+          docker push $IMAGE_TAG_LOWERCASE
+          docker push ${{ secrets.AWS_ECR_REPOSITORY }}:latest	
