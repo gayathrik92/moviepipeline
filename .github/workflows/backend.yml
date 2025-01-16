@@ -62,14 +62,22 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies and Docker (with containerd.io resolution)
         run: |
-          # Update and install containerd.io without conflicts
-          sudo apt-get update
+          # Update apt repository and remove conflicting containerd and containerd.io
+          sudo apt-get update          
+          # Remove any conflicting containerd version
           sudo apt-get remove -y containerd
           sudo apt-get purge -y containerd
+          sudo apt-get autoremove -y          
+          # Install containerd.io
           sudo apt-get install -y containerd.io
+          # Check for held packages and unhold them if needed
+          sudo apt-mark unhold containerd
+          sudo apt-mark unhold containerd.io
+          # Install pipenv for Python dependency management
           python -m pip install --upgrade pip
           pip install pipenv
-          pipenv install  
+          pipenv install  # Install only production dependencies
+          # Ensure Docker is installed and running
           sudo apt-get install -y docker.io
           sudo systemctl start docker
           sudo systemctl enable docker
