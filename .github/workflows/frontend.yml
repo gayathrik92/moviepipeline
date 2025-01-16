@@ -60,8 +60,8 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
       - name: Build Docker image
         run: >
-          cd frontend docker build -t ${{ secrets.REGISTRY_USERNAME }}:${{ github.sha
-          }} -f Dockerfile .
+          cd frontend                       
+          docker build -t ${{ secrets.REGISTRY_USERNAME }}:${{ github.sha}} -f Dockerfile .
       - name: Push Docker image to AWS ECR
         run: |
           docker push ${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}
