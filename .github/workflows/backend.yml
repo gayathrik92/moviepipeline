@@ -22,7 +22,7 @@ jobs:
           cd backend 
           python -m pip install --upgrade pip
           pip install pipenv
-          pipenv install
+          pipenv install --dev
       - name: Run linting with flake8
         id: lint
         run: cd backend &&  pipenv run flake8 --max-line-length=120
@@ -40,13 +40,15 @@ jobs:
         run: |
           cd backend 
           python -m pip install --upgrade pip
-          pip install pipenv
-          pipenv install
+          pip install pipenv 
+          pipenv install --dev
       - name: Run tests with pytest
         run: cd backend && pipenv run pytest --maxfail=1 --disable-warnings -q
   build:
     runs-on: ubuntu-latest
-    needs: test
+    needs:
+      - lint
+      - test
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -59,7 +61,7 @@ jobs:
           cd backend 
           python -m pip install --upgrade pip
           pip install pipenv
-          pipenv install
+          pipenv install --dev
           sudo apt-get update
           sudo apt-get install -y docker.io
       - name: Log in to AWS ECR
