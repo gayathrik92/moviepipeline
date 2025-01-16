@@ -56,14 +56,23 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: "3.10"
-      - name: Install pipenv and Docker
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Install dependencies and Docker (with containerd.io resolution)
         run: |
-          cd backend 
+          # Update and install containerd.io without conflicts
+          sudo apt-get update
+          sudo apt-get remove -y containerd
+          sudo apt-get purge -y containerd
+          sudo apt-get install -y containerd.io
           python -m pip install --upgrade pip
           pip install pipenv
-          pipenv install --dev
-          sudo apt-get update
+          pipenv install  
           sudo apt-get install -y docker.io
+          sudo systemctl start docker
+          sudo systemctl enable docker
       - name: Log in to AWS ECR
         uses: aws-actions/amazon-ecr-login@v2
         with:
