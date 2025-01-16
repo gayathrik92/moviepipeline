@@ -50,8 +50,6 @@ jobs:
         run: cd frontend && npm run build
       - name: Log in to AWS ECR
         uses: aws-actions/amazon-ecr-login@v2
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
       - name: Build Docker image
         run: >
           cd frontend
