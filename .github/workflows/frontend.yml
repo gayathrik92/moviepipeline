@@ -33,7 +33,7 @@ jobs:
       - name: Install Dependencies
         run: cd frontend && npm ci
       - name: Run Unit Tests
-        run: cd src/components/__tests__ && npm test
+        run: cd frontend/src/components/__tests__ && npm test
   build:
     runs-on: ubuntu-latest
     needs:
