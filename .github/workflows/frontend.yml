@@ -69,6 +69,7 @@ jobs:
           docker build -t "$IMAGE_TAG_LOWERCASE" -f Dockerfile .
       - name: Push Docker image to AWS ECR
         run: |
+          cd frontend
           IMAGE_TAG="${{ secrets.REGISTRY_USERNAME }}:${{ github.sha }}"
           IMAGE_TAG_LOWERCASE=$(echo $IMAGE_TAG | tr '[:upper:]' '[:lower:]')
           docker push "$IMAGE_TAG_LOWERCASE"
