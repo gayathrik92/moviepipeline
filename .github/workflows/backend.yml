@@ -22,7 +22,7 @@ jobs:
           cd backend 
           python -m pip install --upgrade pip
           pip install pipenv
-          pipenv install --dev 
+          pipenv install
       - name: Run linting with flake8
         id: lint
         run: cd backend &&  pipenv run flake8 --max-line-length=120
@@ -41,7 +41,7 @@ jobs:
           cd backend 
           python -m pip install --upgrade pip
           pip install pipenv
-          pipenv install --dev  # Install dev dependencies
+          pipenv install
       - name: Run tests with pytest
         run: cd backend && pipenv run pytest --maxfail=1 --disable-warnings -q
   build:
@@ -59,7 +59,7 @@ jobs:
           cd backend 
           python -m pip install --upgrade pip
           pip install pipenv
-          pipenv install --dev  # Install dev dependencies
+          pipenv install
           sudo apt-get update
           sudo apt-get install -y docker.io
       - name: Log in to AWS ECR
@@ -68,19 +68,15 @@ jobs:
           region: ${{ secrets.AWS_REGION }}
       - name: Build Docker image
         run: >
-          cd backend  
-
-          IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}"
-
-          IMAGE_TAG_LOWERCASE=$(echo $IMAGE_TAG | tr '[:upper:]' '[:lower:]')  
-
+          cd backend 
+          IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY_BD }}:${{ github.sha }}"
+          IMAGE_TAG_LOWERCASE=$(echo $IMAGE_TAG | tr '[:upper:]' '[:lower:]') 
           docker build -t "$IMAGE_TAG_LOWERCASE" -f Dockerfile .
-
-          docker tag "$IMAGE_TAG_LOWERCASE" "${{ secrets.AWS_ECR_REPOSITORY }}:latest"  
+          docker tag "$IMAGE_TAG_LOWERCASE" "${{ secrets.AWS_ECR_REPOSITORY_BD }}:latest"  
       - name: Push Docker image to AWS ECR
         run: |
           cd backend  
-          IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}"
+          IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY_BD }}:${{ github.sha }}"
           IMAGE_TAG_LOWERCASE=$(echo $IMAGE_TAG | tr '[:upper:]' '[:lower:]')
           docker push "$IMAGE_TAG_LOWERCASE"
-          docker push "${{ secrets.AWS_ECR_REPOSITORY }}:latest"
+          docker push "${{ secrets.AWS_ECR_REPOSITORY_BD }}:latest"
