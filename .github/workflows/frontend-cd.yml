@@ -99,19 +99,21 @@ jobs:
 
   deploy:
     name: Deploy Frontend to Kubernetes
+    needs:
+      - build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+  
       - name: Set up kubectl
         uses: aws-actions/configure-kubectl@v2
         with:
           region: ${{ secrets.AWS_REGION }}
-          cluster-name: cluster
-      - name: Configure kubectl
-        run: |
-          aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name cluster
+          cluster-name: ${{ secrets.CLUSTER_NAME }}  # Use secret variable for cluster name
+  
       - name: Deploy to Kubernetes
         run: |
           cd frontend
           kubectl apply -k k8s/
+  
