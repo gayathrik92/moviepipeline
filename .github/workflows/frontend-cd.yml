@@ -91,7 +91,7 @@ jobs:
         run: |
           IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}"
           IMAGE_TAG_LOWERCASE=$(echo $IMAGE_TAG | tr '[:upper:]' '[:lower:]')
-          docker build -t "$IMAGE_TAG_LOWERCASE" -f frontend/Dockerfile frontend --build-arg REACT_APP_MOVIE_API_URL="${{ secrets.BACKEND_URL }}"
+          docker build -t "$IMAGE_TAG_LOWERCASE" -f frontend/Dockerfile frontend --build-arg REACT_APP_MOVIE_API_URL="${{ secrets.REACT_APP_MOVIE_API_URL }}"
           docker tag "$IMAGE_TAG_LOWERCASE" "${{ secrets.AWS_ECR_REPOSITORY }}:latest"
       - name: Push Docker image to AWS ECR
         if: steps.check_image.outcome == 'failure' 	  
@@ -134,6 +134,6 @@ jobs:
       # Deploy to Kubernetes
       - name: Deploy to Kubernetes
         run: |
-          cd backend
+          cd frontend
           kubectl apply -k k8s/
   
