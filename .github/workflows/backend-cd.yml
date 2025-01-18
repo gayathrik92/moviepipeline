@@ -149,10 +149,10 @@ jobs:
         uses: aws-actions/configure-kubectl@v2
         with:
           region: ${{ secrets.AWS_REGION }}
-          cluster-name: movie-cluster
+          cluster-name: cluster
       - name: Configure kubectl
         run: |
-          aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name movie-cluster
+          aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name cluster
       - name: Deploy to Kubernetes
         run: |
           cd backend
