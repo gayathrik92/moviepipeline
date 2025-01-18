@@ -84,11 +84,17 @@ jobs:
           echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV	  
       - name: Log in to AWS ECR
         run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPOSITORY }}
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPOSITORY_BD }}
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}	 
-
+      - name: Check if image exists in ECR
+        id: check_image
+        run: |
+          IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY_BD }}:${{ github.sha }}"
+          aws ecr describe-images --repository-name ${{ secrets.AWS_ECR_REPOSITORY_BD }} --image-ids imageTag=$IMAGE_TAG || echo "Image not found"
+        continue-on-error: true			  
       - name: Build Docker image
+        if: steps.check_image.outcome == 'failure'	  
         run: |
           cd backend
           IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY_BD  }}:${{ github.sha }}"
@@ -96,6 +102,7 @@ jobs:
           docker build -t "$IMAGE_TAG_LOWERCASE" -f Dockerfile .
           docker tag "$IMAGE_TAG_LOWERCASE" "${{ secrets.AWS_ECR_REPOSITORY_BD }}:latest"
       - name: Push Docker image to AWS ECR
+        if: steps.check_image.outcome == 'failure'	  
         run: |
           cd backend
           IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY_BD  }}:${{ github.sha }}"
