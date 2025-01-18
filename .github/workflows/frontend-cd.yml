@@ -78,13 +78,13 @@ jobs:
       - name: Check if image exists in ECR
         id: check_image
         run: |
-          IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}"
+          IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY }}:latest"
           aws ecr describe-images --repository-name ${{ secrets.AWS_ECR_REPOSITORY }} --image-ids imageTag=$IMAGE_TAG || echo "Image not found"
         continue-on-error: true		  
       - name: Build Docker image
         if: steps.check_image.outcome == 'failure'
         run: |
-          IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY }}:latest"
+          IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}"
           IMAGE_TAG_LOWERCASE=$(echo $IMAGE_TAG | tr '[:upper:]' '[:lower:]')
           docker build -t "$IMAGE_TAG_LOWERCASE" -f frontend/Dockerfile frontend --build-arg REACT_APP_MOVIE_API_URL="${{ secrets.BACKEND_URL }}"
           docker tag "$IMAGE_TAG_LOWERCASE" "${{ secrets.AWS_ECR_REPOSITORY }}:latest"
