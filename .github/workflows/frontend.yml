@@ -1,5 +1,5 @@
----
 name: Frontend CI Pipeline
+
 on:
   pull_request:
     branches:
@@ -7,33 +7,50 @@ on:
     paths:
       - frontend/**
   workflow_dispatch: null
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-      - name: Set up Node.js (if applicable)
+      - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: "18"
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-		  
       - name: Install Dependencies
         run: cd frontend && npm ci
-      - name: Run Unit Tests
+      - name: Run Linting
         run: cd frontend && npm run lint
+
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-      - name: Set up Node.js (if applicable)
+      - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: "18"
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-		  
       - name: Install Dependencies
         run: cd frontend && npm ci
       - name: Run Unit Tests
         run: cd frontend/src/components/__tests__ && npm test
+
   build:
     runs-on: ubuntu-latest
     needs:
@@ -45,30 +62,6 @@ jobs:
       - name: Fix permissions for react-scripts
         run: |
           cd frontend
-          chmod +x node_modules/.bin/react-scripts		
+          chmod +x node_modules/.bin/react-scripts
       - name: Build Frontend Application
         run: cd frontend && npm run build
-      - name: Set up AWS credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $GITHUB_ENV
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $GITHUB_ENV
-          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV	  
-      - name: Log in to AWS ECR
-        run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPOSITORY }}
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}	  
-      - name: Build Docker image
-        run: |
-          cd frontend
-          IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY  }}:${{ github.sha }}"
-          IMAGE_TAG_LOWERCASE=$(echo $IMAGE_TAG | tr '[:upper:]' '[:lower:]')
-          docker build -t "$IMAGE_TAG_LOWERCASE" -f Dockerfile .
-          docker tag "$IMAGE_TAG_LOWERCASE" "${{ secrets.AWS_ECR_REPOSITORY }}:latest"
-      - name: Push Docker image to AWS ECR
-        run: |
-          cd frontend
-          IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY  }}:${{ github.sha }}"
-          IMAGE_TAG_LOWERCASE=$(echo $IMAGE_TAG | tr '[:upper:]' '[:lower:]')
-          docker push "$IMAGE_TAG_LOWERCASE"
-          docker push "${{ secrets.AWS_ECR_REPOSITORY }}:latest"
