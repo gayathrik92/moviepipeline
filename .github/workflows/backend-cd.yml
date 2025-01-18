@@ -91,9 +91,13 @@ jobs:
         id: check_image
         run: |
           IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY_BD }}:latest"
-          IMAGE_EXISTS=$(aws ecr describe-images --repository-name ${{ secrets.AWS_ECR_REPOSITORY_BD }} --filters "tagStatus=TAGGED" "tagKey=latest" || echo "Image not found")
-          echo "Image exists: $IMAGE_EXISTS"
-          continue-on-error: true
+              if aws ecr describe-images --repository-name ${{ secrets.AWS_ECR_REPOSITORY_BD }} --image-ids imageTag=latest; then
+                echo "Image exists."
+              else
+                echo "Image not found."
+                exit 1
+              fi
+        continue-on-error: true
       - name: Build Docker image
         if: steps.check_image.outcome == 'failure'	  
         run: |
