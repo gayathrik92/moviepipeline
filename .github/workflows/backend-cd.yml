@@ -124,12 +124,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
   
-      - name: Set up kubectl
-        uses: aws-actions/configure-kubectl@v2
-        with:
-          region: ${{ secrets.AWS_REGION }}
-          cluster-name: ${{ secrets.CLUSTER_NAME }}  # Use secret variable for cluster name
+      # Download kubectl binary
+      - name: Download kubectl binaries
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          
+      # Install kubectl
+      - name: Install Kubectl
+        run: |
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          kubectl version --client
   
+      # Configure kubectl to interact with the EKS cluster
+      - name: Set up kubectl for EKS
+        run: |
+          aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name cluster
+  
+      # Deploy to Kubernetes
       - name: Deploy to Kubernetes
         run: |
           cd backend
