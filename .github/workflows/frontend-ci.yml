@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - frontend/**
+  push:
+    branches:
+      - main
   workflow_dispatch: null
 
 jobs:
@@ -21,10 +24,9 @@ jobs:
       - name: Cache Node.js dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('frontend/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-		  
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json		  
       - name: Install Dependencies
         run: cd frontend && npm ci
       - name: Run Linting
@@ -42,10 +44,9 @@ jobs:
       - name: Cache Node.js dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('frontend/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-		  
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json		  
       - name: Install Dependencies
         run: cd frontend && npm ci
       - name: Run Unit Tests
@@ -59,9 +60,28 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v2
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json		
+      - name: Install Dependencies
+        run: cd frontend && npm ci	
+      - name: Run Unit Tests
+        run: cd frontend/src/components/__tests__ && npm test		
       - name: Fix permissions for react-scripts
         run: |
           cd frontend
           chmod +x node_modules/.bin/react-scripts
       - name: Build Frontend Application
         run: cd frontend && npm run build
+      - name: Build and Run Docker Image
+        run: |
+          cd frontend
+          docker build --build-arg=REACT_APP_MOVIE_API_URL=http://localhost:5000 --tag=mp-frontend:latest .
+          docker run --name mp-frontend -p 3000:3000 -d mp-frontend		

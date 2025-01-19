@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - backend/**
+  push:
+    branches:
+      - main	  
   workflow_dispatch: null
 jobs:
   lint:
@@ -70,3 +73,11 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.10'  
+      - name: Build Docker image
+        if: steps.check_image.outcome == 'failure'	  
+        run: |
+          cd backend
+          IMAGE_TAG="${{ secrets.AWS_ECR_REPOSITORY_BD  }}:${{ github.sha }}"
+          IMAGE_TAG_LOWERCASE=$(echo $IMAGE_TAG | tr '[:upper:]' '[:lower:]')
+          docker build -t "$IMAGE_TAG_LOWERCASE" -f Dockerfile .
+          docker tag "$IMAGE_TAG_LOWERCASE" "${{ secrets.AWS_ECR_REPOSITORY_BD }}:latest"

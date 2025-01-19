@@ -7,6 +7,9 @@ on:
     paths:
       - frontend/**
   workflow_dispatch: null
+  push:
+    branches:
+      - main  
 
 jobs:
   lint:
