@@ -21,4 +21,4 @@ spec:
             - containerPort: 3000
           env:
             - name: REACT_APP_MOVIE_API_URL
-              value: "http://a5a0826dc67174d358efe5f4ead5a048-78255456.us-east-1.elb.amazonaws.com:32337" 			
+              value: "http://a5a0826dc67174d358efe5f4ead5a048-78255456.us-east-1.elb.amazonaws.com" 			
