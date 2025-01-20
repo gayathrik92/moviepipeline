@@ -3,13 +3,7 @@ name: Backend CI Pipeline
 on:
   pull_request:
     branches:
-      - main
-    paths:
-      - backend/**
-  push:
-    branches:
       - main	  
-  workflow_dispatch: null
 jobs:
   lint:
     runs-on: ubuntu-latest

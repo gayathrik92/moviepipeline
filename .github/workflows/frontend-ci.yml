@@ -4,12 +4,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - frontend/**
-  push:
-    branches:
-      - main
-  workflow_dispatch: null
 
 jobs:
   lint:

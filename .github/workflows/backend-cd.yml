@@ -1,12 +1,6 @@
 ---
 name: Backend CD Pipeline
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - backend/**
-  workflow_dispatch: null
   push:
     branches:
       - main  
